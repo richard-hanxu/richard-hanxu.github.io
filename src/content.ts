@@ -6,9 +6,18 @@
  * are hidden automatically, so you can leave a list empty while you fill it in.
  */
 
+/**
+ * Icons available for header links. Add a new one in
+ * src/components/icons.tsx if you need something else.
+ */
+export type LinkIcon = "github" | "linkedin" | "mail" | "globe";
+
 export type Link = {
+  /** Used for the tooltip and screen readers. */
   label: string;
   href: string;
+  /** Which icon to show. Omit to show the label as plain text instead. */
+  icon?: LinkIcon;
 };
 
 export type Experience = {
@@ -18,6 +27,12 @@ export type Experience = {
   period: string;
   /** Optional. Shown as a link on the organization name if provided. */
   url?: string;
+  /**
+   * Optional. Path to a logo inside the public/ folder, e.g.
+   * "/images/logos/acme.png". Square images (or SVGs) look best.
+   * When omitted, the organization's initials are shown instead.
+   */
+  logo?: string;
   /** Each string becomes a bullet point. */
   highlights: string[];
   /** Tools, languages, or frameworks. Each string becomes a tag. */
@@ -42,6 +57,11 @@ export const profile = {
   /** Appears in the browser tab. */
   siteTitle: "Your Name",
   /**
+   * Path to your profile photo inside the public/ folder, e.g.
+   * "/images/profile.jpg". Set to "" to show a placeholder until you add one.
+   */
+  image: "",
+  /**
    * The introductory paragraph(s). Each string is rendered as its own
    * paragraph, so add or remove strings freely.
    */
@@ -51,9 +71,17 @@ export const profile = {
   ],
   /** Links pinned in the header at the top of the page. */
   links: [
-    { label: "GitHub", href: "https://github.com/your-username" },
-    { label: "LinkedIn", href: "https://www.linkedin.com/in/your-username" },
-  ] satisfies Link[],
+    {
+      label: "GitHub",
+      href: "https://github.com/your-username",
+      icon: "github",
+    },
+    {
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/in/your-username",
+      icon: "linkedin",
+    },
+  ] as Link[],
   /** Optional. Set to an empty string to hide the email line. */
   email: "you@example.com",
 };
@@ -64,6 +92,7 @@ export const experiences: Experience[] = [
     organization: "Acme Robotics",
     period: "Summer 2025",
     url: "https://example.com",
+    logo: "/images/logos/acme.svg",
     highlights: [
       "Built an internal dashboard for monitoring fleet telemetry, cutting time-to-diagnose for field issues from hours to minutes.",
       "Wrote a Go service that batched sensor uploads and reduced ingestion cost by roughly 30%.",
