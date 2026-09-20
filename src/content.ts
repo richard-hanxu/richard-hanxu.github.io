@@ -4,28 +4,33 @@
  * To add an entry, copy an existing object in the relevant array and change
  * the text. To remove one, delete the object. Sections with an empty array
  * are hidden automatically, so you can leave a list empty while you fill it in.
+ *
+ * Any text field marked "supports links" can contain Markdown-style links:
+ *   "I study at [UWaterloo](https://uwaterloo.ca)."
  */
 
 /**
- * Icons available for header links. Add a new one in
+ * Icons available for sidebar links. Add a new one in
  * src/components/icons.tsx if you need something else.
  */
-export type LinkIcon = "github" | "linkedin" | "mail" | "globe";
+export type LinkIcon = "github" | "linkedin" | "mail" | "globe" | "file";
 
 export type Link = {
-  /** Used for the tooltip and screen readers. */
   label: string;
   href: string;
-  /** Which icon to show. Omit to show the label as plain text instead. */
-  icon?: LinkIcon;
+  icon: LinkIcon;
 };
 
 export type Experience = {
-  role: string;
+  /** Shown in bold as the row title. */
   organization: string;
-  /** Free-form, e.g. "Summer 2025" or "Jan 2024 – Present". */
+  /** Shown under the title, e.g. your job title. */
+  role: string;
+  /** Optional. City, "Remote", etc. Shown after the role. */
+  location?: string;
+  /** Shown on the right, e.g. "2025" or "Jan 2024 – Present". */
   period: string;
-  /** Optional. Shown as a link on the organization name if provided. */
+  /** Optional. A "Visit" link appears in the expanded details if provided. */
   url?: string;
   /**
    * Optional. Path to a logo inside the public/ folder, e.g.
@@ -33,22 +38,32 @@ export type Experience = {
    * When omitted, the organization's initials are shown instead.
    */
   logo?: string;
-  /** Each string becomes a bullet point. */
+  /** Revealed on hover. Each string becomes a bullet point. Supports links. */
   highlights: string[];
-  /** Tools, languages, or frameworks. Each string becomes a tag. */
+  /** Revealed on hover. Tools, languages, or frameworks. */
   tags: string[];
 };
 
 export type Project = {
+  /** Shown in bold as the row title. */
   name: string;
-  description: string;
-  /** Optional. Shown as a link on the project name if provided. */
+  /** Shown under the title, e.g. "Personal project" or "Hack the North". */
+  location: string;
+  /** Shown on the right, e.g. "2025". */
+  year: string;
+  /** Optional. A "Visit" link appears in the expanded details if provided. */
   url?: string;
+  /** Optional. Same rules as experience logos. */
+  logo?: string;
+  /** Revealed on hover. Supports links. */
+  description: string;
+  /** Revealed on hover. */
   tags: string[];
 };
 
 export type Interest = {
   name: string;
+  /** Supports links. */
   description: string;
 };
 
@@ -63,13 +78,18 @@ export const profile = {
   image: "",
   /**
    * The introductory paragraph(s). Each string is rendered as its own
-   * paragraph, so add or remove strings freely.
+   * paragraph, so add or remove strings freely. Supports links.
    */
   intro: [
-    "I'm a third-year student studying Computer Science and Mathematics. Most of my coursework has centered on systems, distributed computing, and probability, and I spend a lot of my free time building tools that make those ideas easier to work with.",
-    "Outside of class I care about well-designed software, long-form writing, and getting outside. This site is a running record of where I've worked, what I've built, and what I'm curious about right now.",
+    "A CS student @ [Your University](https://example.edu), spending spare time climbing rocks and writing for this site. Also occasionally found geeking out over distributed systems, DSA problems, and other people's personal websites.",
+    "Previously built platform features at [Acme Robotics](https://example.com). Also served as a research assistant in the [Systems Lab](https://example.edu/systems), benchmarking consensus protocols for geo-distributed replication.",
+    "This site is a collection of things I've made, organized loosely into a few categories. Feel free to take a look around.",
   ],
-  /** Links pinned in the header at the top of the page. */
+  /**
+   * Icon links in the sidebar. Delete or reorder freely. To add a résumé,
+   * drop a PDF in public/ and add:
+   *   { label: "Resume", href: "/resume.pdf", icon: "file" },
+   */
   links: [
     {
       label: "GitHub",
@@ -81,16 +101,20 @@ export const profile = {
       href: "https://www.linkedin.com/in/your-username",
       icon: "linkedin",
     },
+    {
+      label: "Email",
+      href: "mailto:you@example.com",
+      icon: "mail",
+    },
   ] as Link[],
-  /** Optional. Set to an empty string to hide the email line. */
-  email: "you@example.com",
 };
 
 export const experiences: Experience[] = [
   {
-    role: "Software Engineering Intern",
     organization: "Acme Robotics",
-    period: "Summer 2025",
+    role: "Software Engineering Intern",
+    location: "Toronto, ON",
+    period: "2025",
     url: "https://example.com",
     logo: "/images/logos/acme.svg",
     highlights: [
@@ -100,9 +124,9 @@ export const experiences: Experience[] = [
     tags: ["Go", "TypeScript", "React", "PostgreSQL", "Grafana"],
   },
   {
-    role: "Undergraduate Research Assistant",
     organization: "Systems Lab, Your University",
-    period: "Jan 2024 – Present",
+    role: "Undergraduate Research Assistant",
+    period: "2024 – Present",
     highlights: [
       "Implemented and benchmarked consensus protocol variants for a paper on geo-distributed replication.",
       "Maintain the lab's shared experiment harness and CI pipeline.",
@@ -114,16 +138,20 @@ export const experiences: Experience[] = [
 export const projects: Project[] = [
   {
     name: "Ledgerline",
+    location: "Personal project",
+    year: "2025",
+    url: "https://github.com/your-username/ledgerline",
     description:
       "A command-line budgeting tool that imports bank CSV exports, categorizes transactions with simple rules, and produces monthly reports.",
-    url: "https://github.com/your-username/ledgerline",
     tags: ["Python", "SQLite", "Click"],
   },
   {
     name: "Notebook Sync",
+    location: "Hackathon build",
+    year: "2024",
+    url: "https://github.com/your-username/notebook-sync",
     description:
       "A small browser extension that keeps highlights from web articles in sync with a local Markdown folder.",
-    url: "https://github.com/your-username/notebook-sync",
     tags: ["TypeScript", "WebExtensions", "Markdown"],
   },
 ];
@@ -132,12 +160,11 @@ export const interests: Interest[] = [
   {
     name: "Distributed systems",
     description:
-      "How systems stay correct when parts of them fail. Currently reading through the Raft and Spanner papers again with fresh eyes.",
+      "How systems stay correct when parts of them fail. Currently reading through the [Raft](https://raft.github.io/) and Spanner papers again with fresh eyes.",
   },
   {
-    name: "Trail running",
-    description:
-      "Long, slow miles on dirt. Working toward a first 50k.",
+    name: "Climbing",
+    description: "Mostly bouldering, occasionally outdoors when the weather cooperates.",
   },
   {
     name: "Typography",

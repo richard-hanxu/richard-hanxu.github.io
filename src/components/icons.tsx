@@ -1,4 +1,4 @@
-import { Globe, Mail } from "lucide-react";
+import { FileText, Globe, Mail } from "lucide-react";
 import type { LinkIcon } from "@/content";
 
 type IconProps = React.SVGProps<SVGSVGElement>;
@@ -24,6 +24,7 @@ const icons: Record<LinkIcon, (props: IconProps) => React.ReactElement> = {
   linkedin: LinkedInIcon,
   mail: (props) => <Mail aria-hidden {...props} />,
   globe: (props) => <Globe aria-hidden {...props} />,
+  file: (props) => <FileText aria-hidden {...props} />,
 };
 
 export function SocialIcon({

@@ -1,17 +1,11 @@
 import Image from "next/image";
-import { SocialIcon } from "@/components/icons";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ArrowUpRight } from "lucide-react";
+import { ExpandableRow } from "@/components/expandable-row";
+import { RichText } from "@/components/rich-text";
+import { Sidebar, type NavItem } from "@/components/sidebar";
+import { ThemeHint } from "@/components/theme-hint";
 import { Badge } from "@/components/ui/badge";
-import {
-  experiences,
-  interests,
-  profile,
-  projects,
-  type Experience,
-} from "@/content";
-
-const linkStyle =
-  "underline decoration-border underline-offset-[3px] transition-colors hover:decoration-foreground";
+import { experiences, interests, profile, projects } from "@/content";
 
 function Tags({ tags }: { tags: string[] }) {
   if (tags.length === 0) return null;
@@ -19,12 +13,33 @@ function Tags({ tags }: { tags: string[] }) {
     <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Tools used">
       {tags.map((tag) => (
         <li key={tag}>
-          <Badge variant="secondary" className="font-normal">
+          <Badge variant="outline" className="font-normal text-muted-foreground">
             {tag}
           </Badge>
         </li>
       ))}
     </ul>
+  );
+}
+
+function VisitLink({ href }: { href?: string }) {
+  if (!href) return null;
+  let label = href;
+  try {
+    label = new URL(href).hostname.replace(/^www\./, "");
+  } catch {
+    /* keep raw href */
+  }
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="mt-3 inline-flex items-center gap-1 text-sm text-link underline decoration-link/40 underline-offset-[3px] hover:decoration-link"
+    >
+      {label}
+      <ArrowUpRight aria-hidden className="size-3.5" />
+    </a>
   );
 }
 
@@ -38,34 +53,10 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-24">
-      <h2 className="mb-6 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-        {title}
-      </h2>
+    <section id={id} className="scroll-mt-28 md:scroll-mt-12">
+      <h2 className="mb-5 text-lg font-semibold tracking-tight">{title}</h2>
       {children}
     </section>
-  );
-}
-
-function MaybeLink({
-  href,
-  children,
-  className,
-}: {
-  href?: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  if (!href) return <span className={className}>{children}</span>;
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className={`${linkStyle} ${className ?? ""}`}
-    >
-      {children}
-    </a>
   );
 }
 
@@ -78,17 +69,65 @@ function initials(name: string) {
     .join("");
 }
 
+function Logo({ src, name }: { src?: string; name: string }) {
+  const base =
+    "size-14 shrink-0 rounded-lg border border-border/60 bg-white shadow-sm dark:shadow-none";
+  if (src) {
+    return (
+      <Image
+        src={src}
+        alt=""
+        width={56}
+        height={56}
+        className={`${base} object-contain p-2`}
+      />
+    );
+  }
+  return (
+    <div
+      aria-hidden
+      className={`${base} flex items-center justify-center text-sm font-semibold text-neutral-500`}
+    >
+      {initials(name)}
+    </div>
+  );
+}
+
+function RowHeader({
+  logo,
+  title,
+  subtitle,
+  aside,
+}: {
+  logo: React.ReactNode;
+  title: string;
+  subtitle: string;
+  aside: string;
+}) {
+  return (
+    <>
+      {logo}
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium">{title}</p>
+        <p className="truncate text-sm text-muted-foreground">{subtitle}</p>
+      </div>
+      <p className="hidden shrink-0 text-sm text-muted-foreground sm:block">
+        {aside}
+      </p>
+    </>
+  );
+}
+
 function ProfileImage() {
-  const size = 112;
   if (!profile.image) {
     return (
       <div
         aria-hidden
-        className="flex size-24 items-center justify-center rounded-full border border-dashed border-border bg-muted text-center text-[11px] leading-tight text-muted-foreground sm:size-28"
+        className="flex size-20 items-center justify-center rounded-full border border-dashed border-border bg-muted text-center text-[10px] leading-tight text-muted-foreground"
       >
-        Add a photo in
+        Add a photo
         <br />
-        content.ts
+        in content.ts
       </div>
     );
   }
@@ -96,199 +135,130 @@ function ProfileImage() {
     <Image
       src={profile.image}
       alt={`Portrait of ${profile.name}`}
-      width={size}
-      height={size}
+      width={80}
+      height={80}
       priority
-      className="size-24 rounded-full border border-border object-cover sm:size-28"
+      className="size-20 rounded-full border border-border object-cover"
     />
   );
 }
 
-function OrganizationLogo({ item }: { item: Experience }) {
-  const className =
-    "size-11 shrink-0 rounded-lg border border-border bg-card object-contain";
-  if (item.logo) {
-    return (
-      <Image
-        src={item.logo}
-        alt={`${item.organization} logo`}
-        width={44}
-        height={44}
-        className={`${className} p-1`}
-      />
-    );
-  }
-  return (
-    <div
-      aria-hidden
-      className={`${className} flex items-center justify-center bg-muted text-xs font-semibold text-muted-foreground`}
-    >
-      {initials(item.organization)}
-    </div>
-  );
-}
-
 export default function Home() {
-  const hasExperiences = experiences.length > 0;
-  const hasProjects = projects.length > 0;
-  const hasInterests = interests.length > 0;
-
-  const nav = [
-    hasExperiences && { href: "#experience", label: "Experience" },
-    hasProjects && { href: "#projects", label: "Projects" },
-    hasInterests && { href: "#interests", label: "Interests" },
-  ].filter(Boolean) as { href: string; label: string }[];
+  const nav: NavItem[] = [
+    { href: "#home", label: "Home" },
+    ...(experiences.length > 0
+      ? [{ href: "#experience", label: "Experience" }]
+      : []),
+    ...(projects.length > 0 ? [{ href: "#projects", label: "Projects" }] : []),
+    ...(interests.length > 0
+      ? [{ href: "#interests", label: "Interests" }]
+      : []),
+  ];
 
   return (
-    <>
-      <header className="sticky top-0 z-10 border-b border-border bg-background/90 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-4 px-6 py-3 sm:px-8">
-          <a href="#top" className="text-sm font-semibold tracking-tight">
-            {profile.name}
-          </a>
-          <nav className="flex items-center gap-1 text-sm sm:gap-2">
-            {nav.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="hidden px-2 text-muted-foreground transition-colors hover:text-foreground sm:inline"
-              >
-                {item.label}
-              </a>
-            ))}
-            {nav.length > 0 && profile.links.length > 0 && (
-              <span
-                aria-hidden
-                className="mx-1 hidden h-4 w-px bg-border sm:inline-block"
-              />
-            )}
-            {profile.links.map((link) =>
-              link.icon ? (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={link.label}
-                  title={link.label}
-                  className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <SocialIcon name={link.icon} className="size-[18px]" />
-                </a>
-              ) : (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={`px-2 font-medium ${linkStyle}`}
-                >
-                  {link.label}
-                </a>
-              ),
-            )}
-            <ThemeToggle />
-          </nav>
-        </div>
-      </header>
+    <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-5 pb-24 md:flex-row md:gap-14 md:px-8 md:pt-12">
+      <Sidebar nav={nav} />
 
-      <main
-        id="top"
-        className="mx-auto w-full max-w-2xl flex-1 px-6 pb-24 pt-16 sm:px-8 sm:pt-20"
-      >
-        <section aria-labelledby="intro-heading" className="mb-20">
-          <div className="mb-8 flex flex-col-reverse gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <h1
-              id="intro-heading"
-              className="text-3xl font-semibold tracking-tight sm:text-4xl"
-            >
-              Hi, I&apos;m {profile.name}.
-            </h1>
+      <main id="home" className="min-w-0 max-w-2xl flex-1 scroll-mt-28 md:scroll-mt-12">
+        <section aria-labelledby="intro-heading">
+          <div className="mb-6">
             <ProfileImage />
           </div>
-          <div className="space-y-4 text-[17px] leading-relaxed text-foreground/80">
+          <h1
+            id="intro-heading"
+            className="mb-5 text-lg font-bold italic tracking-tight"
+          >
+            {profile.name}
+          </h1>
+          <div className="space-y-4 text-[15px] leading-relaxed text-foreground/85">
             {profile.intro.map((paragraph, i) => (
-              <p key={i}>{paragraph}</p>
+              <p key={i}>
+                <RichText text={paragraph} />
+              </p>
             ))}
           </div>
-          {profile.email && (
-            <p className="mt-6 text-sm text-muted-foreground">
-              Reach me at{" "}
-              <a
-                href={`mailto:${profile.email}`}
-                className={`text-foreground ${linkStyle}`}
-              >
-                {profile.email}
-              </a>
-              .
-            </p>
-          )}
+          <div className="mt-10">
+            <ThemeHint />
+          </div>
         </section>
 
-        <div className="space-y-20">
-          {hasExperiences && (
-            <Section id="experience" title="Experience">
-              <ol className="space-y-10">
-                {experiences.map((item) => (
-                  <li
-                    key={`${item.role}-${item.organization}-${item.period}`}
-                    className="flex gap-4"
-                  >
-                    <OrganizationLogo item={item} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
-                        <h3 className="text-base font-medium">
-                          {item.role}
-                          <span className="text-muted-foreground/60"> · </span>
-                          <MaybeLink href={item.url}>
-                            {item.organization}
-                          </MaybeLink>
-                        </h3>
-                        <p className="shrink-0 text-sm text-muted-foreground">
-                          {item.period}
-                        </p>
-                      </div>
-                      {item.highlights.length > 0 && (
-                        <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[15px] leading-relaxed text-foreground/80 marker:text-muted-foreground/50">
-                          {item.highlights.map((line, i) => (
-                            <li key={i}>{line}</li>
-                          ))}
-                        </ul>
-                      )}
-                      <Tags tags={item.tags} />
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </Section>
-          )}
+        <hr className="my-10 border-border" />
 
-          {hasProjects && (
-            <Section id="projects" title="Projects">
-              <ul className="space-y-10">
-                {projects.map((project) => (
-                  <li key={project.name}>
-                    <h3 className="text-base font-medium">
-                      <MaybeLink href={project.url}>{project.name}</MaybeLink>
-                    </h3>
-                    <p className="mt-2 text-[15px] leading-relaxed text-foreground/80">
-                      {project.description}
+        <div className="space-y-14">
+          {experiences.length > 0 && (
+            <Section id="experience" title="Experience">
+              <ul className="space-y-1">
+                {experiences.map((item) => (
+                  <ExpandableRow
+                    key={`${item.organization}-${item.role}-${item.period}`}
+                    header={
+                      <RowHeader
+                        logo={<Logo src={item.logo} name={item.organization} />}
+                        title={item.organization}
+                        subtitle={[item.role, item.location]
+                          .filter(Boolean)
+                          .join(" · ")}
+                        aside={item.period}
+                      />
+                    }
+                  >
+                    <p className="mb-2 text-sm text-muted-foreground sm:hidden">
+                      {item.period}
                     </p>
-                    <Tags tags={project.tags} />
-                  </li>
+                    {item.highlights.length > 0 && (
+                      <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-foreground/85 marker:text-muted-foreground/50">
+                        {item.highlights.map((line, i) => (
+                          <li key={i}>
+                            <RichText text={line} />
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <Tags tags={item.tags} />
+                    <VisitLink href={item.url} />
+                  </ExpandableRow>
                 ))}
               </ul>
             </Section>
           )}
 
-          {hasInterests && (
+          {projects.length > 0 && (
+            <Section id="projects" title="Projects">
+              <ul className="space-y-1">
+                {projects.map((project) => (
+                  <ExpandableRow
+                    key={project.name}
+                    header={
+                      <RowHeader
+                        logo={<Logo src={project.logo} name={project.name} />}
+                        title={project.name}
+                        subtitle={project.location}
+                        aside={project.year}
+                      />
+                    }
+                  >
+                    <p className="mb-2 text-sm text-muted-foreground sm:hidden">
+                      {project.year}
+                    </p>
+                    <p className="text-sm leading-relaxed text-foreground/85">
+                      <RichText text={project.description} />
+                    </p>
+                    <Tags tags={project.tags} />
+                    <VisitLink href={project.url} />
+                  </ExpandableRow>
+                ))}
+              </ul>
+            </Section>
+          )}
+
+          {interests.length > 0 && (
             <Section id="interests" title="Interests">
-              <ul className="space-y-6">
+              <ul className="space-y-5">
                 {interests.map((interest) => (
                   <li key={interest.name}>
-                    <h3 className="text-base font-medium">{interest.name}</h3>
-                    <p className="mt-1 text-[15px] leading-relaxed text-foreground/80">
-                      {interest.description}
+                    <h3 className="font-medium">{interest.name}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-foreground/85">
+                      <RichText text={interest.description} />
                     </p>
                   </li>
                 ))}
@@ -296,11 +266,11 @@ export default function Home() {
             </Section>
           )}
         </div>
-      </main>
 
-      <footer className="mx-auto w-full max-w-2xl px-6 pb-10 text-xs text-muted-foreground/70 sm:px-8">
-        © {new Date().getFullYear()} {profile.name}
-      </footer>
-    </>
+        <footer className="mt-20 text-xs text-muted-foreground/70">
+          © {new Date().getFullYear()} {profile.name}
+        </footer>
+      </main>
+    </div>
   );
 }
