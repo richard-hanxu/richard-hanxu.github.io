@@ -1,6 +1,6 @@
 # Personal website
 
-A minimal single-column personal site: an introduction, then Experience, Projects, and Interests sections, with a sticky header holding your GitHub and LinkedIn links. Built with Next.js, TypeScript, Tailwind CSS, and shadcn/ui.
+A minimal personal site with a sticky left sidebar (section links, GitHub / LinkedIn / email, theme toggle) and a main column: profile photo, intro, then Experience, Projects, and Interests. Experience and project rows are compact by default and reveal details when you hover over them (or tap on a phone). Built with Next.js, TypeScript, Tailwind CSS, and shadcn/ui.
 
 ## Run it locally
 
@@ -23,12 +23,20 @@ All text on the site lives in one file: [`src/content.ts`](src/content.ts). You 
 
 | What you want to change | Where |
 | --- | --- |
-| Your name, intro paragraphs, email | `profile` |
+| Your name and intro paragraphs | `profile` |
 | Your profile photo | `profile.image` |
-| GitHub / LinkedIn (or any other) header links | `profile.links` |
+| GitHub / LinkedIn / email / résumé links in the sidebar | `profile.links` |
 | Jobs, internships, research | `experiences` |
 | Things you've built | `projects` |
 | Hobbies and topics you care about | `interests` |
+
+### Links inside text
+
+Intro paragraphs, highlights, and descriptions accept Markdown-style links:
+
+```ts
+"A CS student @ [UWaterloo](https://uwaterloo.ca), spending spare time climbing."
+```
 
 ### Adding an entry
 
@@ -36,8 +44,9 @@ Copy an existing object in the array and edit it. For example, a new experience:
 
 ```ts
 {
-  role: "Teaching Assistant",
   organization: "CS 101, Your University",
+  role: "Teaching Assistant",
+  location: "Waterloo, ON",   // optional
   period: "Fall 2025",
   highlights: [
     "Led two weekly discussion sections for ~60 students.",
@@ -46,44 +55,51 @@ Copy an existing object in the array and edit it. For example, a new experience:
 },
 ```
 
-- `highlights` renders as bullet points. Leave it empty (`[]`) if you don't want bullets.
-- `tags` renders as small pills under the entry. Put tools, languages, or frameworks here.
-- `url` is optional on experiences and projects. When set, the organization or project name becomes a link.
+What shows where:
+
+- **Always visible (collapsed row):** logo, `organization` (or project `name`), `role` + `location` (or project `location`), and `period` / `year` on the right.
+- **Revealed on hover / tap:** `highlights` or `description`, `tags` as small pills, and a link to `url` if set.
+
+Leave `highlights` as `[]` or `tags` as `[]` to omit them.
 
 ### Removing an entry
 
-Delete the object from the array. If an array becomes empty, its whole section (and its nav link) disappears from the page automatically.
+Delete the object from the array. If an array becomes empty, its whole section (and its sidebar link) disappears from the page automatically.
 
 ### Images
 
 Put image files in the `public/` folder and reference them by their path from that folder:
 
 - **Profile photo:** drop a file at `public/images/profile.jpg` (any name works) and set `profile.image` to `"/images/profile.jpg"`. Until you do, a dashed placeholder circle is shown. A square image looks best because it is cropped to a circle.
-- **Company logos:** drop a file in `public/images/logos/` and set `logo` on the experience entry, e.g. `logo: "/images/logos/acme.svg"`. Entries without a logo show the organization's initials instead. `public/images/logos/acme.svg` is a sample you can delete.
+- **Logos:** drop a file in `public/images/logos/` and set `logo` on the experience or project, e.g. `logo: "/images/logos/acme.svg"`. Entries without a logo show initials instead. `public/images/logos/acme.svg` is a sample you can delete.
 
-### Header icons
+### Sidebar links
 
-Each entry in `profile.links` can set `icon` to `"github"`, `"linkedin"`, `"mail"`, or `"globe"`. Leave `icon` out to show the label as text instead. To add another icon, register it in `src/components/icons.tsx` and add its name to the `LinkIcon` type in `src/content.ts`.
+Each entry in `profile.links` needs an `icon`: `"github"`, `"linkedin"`, `"mail"`, `"globe"`, or `"file"`. To add a résumé, put a PDF in `public/` and add `{ label: "Resume", href: "/resume.pdf", icon: "file" }`. To add another icon, register it in `src/components/icons.tsx` and add its name to the `LinkIcon` type in `src/content.ts`.
 
 ### Dark mode
 
-The header has a sun/moon toggle. The site follows the visitor's system preference by default and remembers their choice in `localStorage`. Colors come from the CSS variables in `src/app/globals.css` (`:root` for light, `.dark` for dark), so adjust those if you want a different palette.
+The sidebar has a Dark mode / Light mode toggle, and the "P.S. try turning the light on" line under the intro toggles it too. The site follows the visitor's system preference by default and remembers their choice. Colors come from the CSS variables in `src/app/globals.css` (`:root` for light, `.dark` for dark); `--link` controls the inline link color.
 
 ## Project layout
 
 ```
 public/
   images/
-    logos/            # company logos referenced from content.ts
+    logos/               # logos referenced from content.ts
 src/
-  content.ts          # all site content – edit this
+  content.ts             # all site content – edit this
   app/
-    layout.tsx        # font, <head> metadata, theme provider
-    page.tsx          # page structure and styling
-    globals.css       # Tailwind + light/dark theme variables
+    layout.tsx           # font, <head> metadata, theme provider
+    page.tsx             # page structure and styling
+    globals.css          # Tailwind + light/dark theme variables
   components/
-    icons.tsx         # GitHub, LinkedIn, and other header icons
+    sidebar.tsx          # left column (desktop) / top bar (mobile)
+    expandable-row.tsx   # hover / tap to reveal details
+    rich-text.tsx        # renders [text](url) links inside strings
+    theme-hint.tsx       # the "P.S." line
     theme-provider.tsx
-    theme-toggle.tsx  # sun/moon button in the header
-    ui/badge.tsx      # shadcn/ui Badge used for tags
+    theme-toggle.tsx
+    icons.tsx            # GitHub, LinkedIn, and other sidebar icons
+    ui/badge.tsx         # shadcn/ui Badge used for tags
 ```
