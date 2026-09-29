@@ -50,7 +50,7 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
+  --background: oklch(0.945 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -60,7 +60,7 @@
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
+  --muted: oklch(0.885 0 0);
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
@@ -96,7 +96,7 @@
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
+  --muted: oklch(0.30 0 0);
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
@@ -126,8 +126,114 @@
   }
   body {
     @apply bg-background text-foreground;
+    transition: background-color 650ms ease-in-out, color 650ms ease-in-out;
   }
   html {
     @apply font-sans;
   }
+}
+
+.night-sky {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 650ms ease-in-out, visibility 0s linear 650ms;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  /* Static gradients give depth without animating full-screen filters. */
+  background:
+    radial-gradient(ellipse at 9% 18%, rgb(67 89 162 / 34%), transparent 58%),
+    radial-gradient(ellipse at 85% 60%, rgb(104 65 145 / 30%), transparent 58%),
+    radial-gradient(ellipse at 32% 94%, rgb(38 107 116 / 25%), transparent 55%),
+    linear-gradient(125deg, transparent 20%, rgb(99 93 159 / 12%) 48%, transparent 74%);
+}
+
+.dark .night-sky {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.night-sky::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.3;
+  background-image:
+    radial-gradient(1px 1px at 29px 43px, #c9ddff 80%, transparent),
+    radial-gradient(1px 1px at 137px 119px, #ded0ff 80%, transparent),
+    radial-gradient(1px 1px at 73px 187px, #fff0d4 80%, transparent);
+  background-size: 251px 263px, 373px 337px, 433px 389px;
+}
+
+.night-star {
+  position: absolute;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+  opacity: 0;
+  animation: star-pulse ease-in-out infinite;
+}
+
+@keyframes star-pulse {
+  0%, 65%, 100% { opacity: 0.08; transform: scale(0.6); }
+  30% { opacity: 0.65; transform: scale(1); }
+}
+
+.night-comet {
+  position: absolute;
+  left: -220px;
+  width: clamp(100px, 16vw, 220px);
+  height: 1px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, transparent, rgb(153 173 255 / 20%) 45%, #c4d8ff 95%, #fff);
+  opacity: 0;
+  transform: rotate(25deg);
+  animation: comet-pass 23s linear infinite;
+}
+
+.night-comet::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: -1px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #ecf3ff;
+  box-shadow: 0 0 6px 1px rgb(175 200 255 / 65%);
+}
+
+.night-comet-one { top: 8%; animation-delay: -1s; }
+.night-comet-two { top: 33%; animation-duration: 31s; animation-delay: -14s; }
+.night-comet-three { top: 3%; animation-duration: 37s; animation-delay: -25s; }
+.night-comet-four { top: 20%; animation-duration: 19s; animation-delay: -8s; }
+.night-comet-five { top: 46%; animation-duration: 29s; animation-delay: -19s; }
+.night-comet-six { top: 12%; animation-duration: 27s; animation-delay: -5s; }
+
+@keyframes comet-pass {
+  0% { opacity: 0; transform: translate(0, 0) rotate(25deg); }
+  2% { opacity: 0.65; }
+  10% { opacity: 0.45; }
+  14%, 100% { opacity: 0; transform: translate(calc(100vw + 440px), calc(46.6vw + 205px)) rotate(25deg); }
+}
+
+@media (max-width: 640px) {
+  .night-star:nth-child(n + 13) { display: none; }
+  .night-comet-three,
+  .night-comet-six { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body, .night-sky { transition: none; }
+  .night-star { animation: none; opacity: 0.2; }
+  .night-comet { display: none; animation: none; }
+}
+
+/* Keep hidden daytime animations idle without interrupting the sky fade. */
+html:not(.dark) .night-star,
+html:not(.dark) .night-comet {
+  animation-play-state: paused;
 }

@@ -1,6 +1,6 @@
 # Personal website
 
-A minimal personal site with a sticky left sidebar (section links, GitHub / LinkedIn / email, theme toggle) and a main column: profile photo, intro, then Experience, Projects, and Interests. Experience and project rows are compact by default and reveal details when you hover over them (or tap on a phone). Built with Next.js, TypeScript, Tailwind CSS, and shadcn/ui.
+A minimal personal site with a sticky left sidebar (section links, GitHub / LinkedIn / email, theme toggle) and a main column: profile photo, intro, then Experience, Projects, and Interests. Experience and project rows are compact by default and highlight on hover and reveal a bordered detail box when clicked, tapped, or activated with Enter or Space. Built with Next.js, TypeScript, Tailwind CSS, and shadcn/ui.
 
 ## Run it locally
 
@@ -44,6 +44,7 @@ Copy an existing object in the array and edit it. For example, a new experience:
 
 ```ts
 {
+  category: "professional", // or "research"
   organization: "CS 101, Your University",
   role: "Teaching Assistant",
   location: "Waterloo, ON",   // optional
@@ -51,16 +52,20 @@ Copy an existing object in the array and edit it. For example, a new experience:
   highlights: [
     "Led two weekly discussion sections for ~60 students.",
   ],
-  tags: ["Python", "Teaching"],
+  tags: {
+    languages: ["Python"],
+    libraries: [],
+    tools: [],
+  },
 },
 ```
 
 What shows where:
 
 - **Always visible (collapsed row):** logo, `organization` (or project `name`), `role` + `location` (or project `location`), and `period` / `year` on the right.
-- **Revealed on hover / tap:** `highlights` or `description`, `tags` as small pills, and a link to `url` if set.
+- **Revealed on hover:** a detail box with `tags.languages`, `tags.libraries`, and `tags.tools` as labeled pills. Click “Click to expand” to reveal `highlights` or a project `description`; use “Click to collapse” to hide that detail again.
 
-Leave `highlights` as `[]` or `tags` as `[]` to omit them.
+Set an experience `category` to `"professional"` or `"research"` to place it in the corresponding section. Leave `highlights` or any tag category as `[]` to omit it. Edit these fields in `src/content.ts`; tags are display labels, not visitor input fields.
 
 ### Removing an entry
 
@@ -95,7 +100,7 @@ src/
     globals.css          # Tailwind + light/dark theme variables
   components/
     sidebar.tsx          # left column (desktop) / top bar (mobile)
-    expandable-row.tsx   # hover / tap to reveal details
+    expandable-row.tsx   # click / tap to toggle details
     rich-text.tsx        # renders [text](url) links inside strings
     theme-hint.tsx       # the "P.S." line
     theme-provider.tsx

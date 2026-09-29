@@ -8,7 +8,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       attribute="class"
       defaultTheme="system"
       enableSystem
-      disableTransitionOnChange
+      // Run the initial theme script during HTML parsing; client updates use effects.
+      scriptProps={{
+        type: typeof window === "undefined" ? "text/javascript" : "text/plain",
+      }}
     >
       {children}
     </NextThemesProvider>

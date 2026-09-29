@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { NightSky } from "@/components/night-sky";
 import { profile } from "@/content";
 import "./globals.css";
 
@@ -21,7 +22,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col bg-background text-foreground">
+      <body className="relative isolate flex min-h-full flex-col bg-background text-foreground">
+        <NightSky />
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

@@ -4,21 +4,48 @@ import { ExpandableRow } from "@/components/expandable-row";
 import { RichText } from "@/components/rich-text";
 import { Sidebar, type NavItem } from "@/components/sidebar";
 import { ThemeHint } from "@/components/theme-hint";
+import { Typewriter } from "@/components/typewriter";
 import { Badge } from "@/components/ui/badge";
-import { experiences, interests, profile, projects } from "@/content";
+import {
+  experiences,
+  interests,
+  profile,
+  projects,
+  type Experience,
+  type TechnologyTags,
+} from "@/content";
 
-function Tags({ tags }: { tags: string[] }) {
-  if (tags.length === 0) return null;
+function Tags({ tags }: { tags: TechnologyTags }) {
+  const groups = [
+    { label: "Languages", values: tags.languages },
+    { label: "Libraries", values: tags.libraries },
+    { label: "Developer tools", values: tags.tools },
+  ].filter((group) => group.values.length > 0);
+
+  if (groups.length === 0) return null;
+
   return (
-    <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Tools used">
-      {tags.map((tag) => (
-        <li key={tag}>
-          <Badge variant="outline" className="font-normal text-muted-foreground">
-            {tag}
-          </Badge>
-        </li>
+    <dl className="mb-4 space-y-2 border-b border-border pb-4">
+      {groups.map(({ label, values }) => (
+        <div key={label} className="flex flex-wrap items-baseline gap-x-3 gap-y-1.5">
+          <dt className="w-24 shrink-0 text-xs text-muted-foreground">{label}</dt>
+          <dd className="min-w-0 flex-1">
+            <ul className="flex flex-wrap gap-1.5" aria-label={label}>
+            {values.filter(Boolean).map((tag) => (
+                <li key={tag}>
+                  <Badge
+                    variant="outline"
+                    className="h-auto cursor-default whitespace-normal break-words font-normal text-muted-foreground transition-colors hover:bg-muted dark:hover:bg-transparent hover:text-foreground"
+                  >
+                    {tag}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          </dd>
+        </div>
       ))}
-    </ul>
+    </dl>
   );
 }
 
@@ -69,16 +96,16 @@ function initials(name: string) {
     .join("");
 }
 
-function Logo({ src, name }: { src?: string; name: string }) {
+function Logo({ src, name, emoji }: { src?: string; name: string; emoji?: string }) {
   const base =
-    "size-14 shrink-0 rounded-lg border border-border/60 bg-white shadow-sm dark:shadow-none";
+    "size-16 shrink-0 rounded-lg border border-border/60 bg-white shadow-sm dark:shadow-none";
   if (src) {
     return (
       <Image
         src={src}
         alt=""
-        width={56}
-        height={56}
+        width={64}
+        height={64}
         className={`${base} object-contain p-2`}
       />
     );
@@ -88,7 +115,7 @@ function Logo({ src, name }: { src?: string; name: string }) {
       aria-hidden
       className={`${base} flex items-center justify-center text-sm font-semibold text-neutral-500`}
     >
-      {initials(name)}
+      {emoji ? <span className="text-3xl">{emoji}</span> : initials(name)}
     </div>
   );
 }
@@ -118,6 +145,39 @@ function RowHeader({
   );
 }
 
+function ExperienceList({ items }: { items: Experience[] }) {
+  return (
+    <ul className="space-y-1">
+      {items.map((item) => (
+        <ExpandableRow
+          key={`${item.organization}-${item.role}-${item.period}`}
+          preview={<Tags tags={item.tags} />}
+          header={
+            <RowHeader
+              logo={<Logo src={item.logo} name={item.organization} />}
+              title={item.role}
+              subtitle={[item.organization, item.location].filter(Boolean).join(" · ")}
+              aside={item.period}
+            />
+          }
+        >
+          <p className="mb-2 text-sm text-muted-foreground sm:hidden">{item.period}</p>
+          {item.highlights.length > 0 && (
+            <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-foreground/85 marker:text-muted-foreground/50">
+              {item.highlights.map((line, i) => (
+                <li key={i}>
+                  <RichText text={line} />
+                </li>
+              ))}
+            </ul>
+          )}
+          <VisitLink href={item.url} />
+        </ExpandableRow>
+      ))}
+    </ul>
+  );
+}
+
 function ProfileImage() {
   if (!profile.image) {
     return (
@@ -135,19 +195,28 @@ function ProfileImage() {
     <Image
       src={profile.image}
       alt={`Portrait of ${profile.name}`}
-      width={80}
-      height={80}
+      width={200}
+      height={200}
       priority
-      className="size-20 rounded-full border border-border object-cover"
+      className="size-50 rounded-full border border-border object-cover"
     />
   );
 }
 
 export default function Home() {
+  const professionalExperiences = experiences.filter(
+    (item) => item.category === "professional",
+  );
+  const researchExperiences = experiences.filter(
+    (item) => item.category === "research",
+  );
   const nav: NavItem[] = [
     { href: "#home", label: "Home" },
-    ...(experiences.length > 0
-      ? [{ href: "#experience", label: "Experience" }]
+    ...(professionalExperiences.length > 0
+      ? [{ href: "#professional-experience", label: "Professional Experience" }]
+      : []),
+    ...(researchExperiences.length > 0
+      ? [{ href: "#research-experience", label: "Research Experience" }]
       : []),
     ...(projects.length > 0 ? [{ href: "#projects", label: "Projects" }] : []),
     ...(interests.length > 0
@@ -161,15 +230,19 @@ export default function Home() {
 
       <main id="home" className="min-w-0 max-w-2xl flex-1 scroll-mt-28 md:scroll-mt-12">
         <section aria-labelledby="intro-heading">
-          <div className="mb-6">
+          <div className="mb-6 flex items-center gap-4">
             <ProfileImage />
+            <div className="flex min-w-0 flex-1 justify-center">
+              <div className="relative inline-block">
+                <h1 id="intro-heading" className="text-4xl font-bold tracking-tight">
+                  {profile.name}
+                </h1>
+                <div className="absolute top-full left-0 w-max">
+                  <Typewriter />
+                </div>
+              </div>
+            </div>
           </div>
-          <h1
-            id="intro-heading"
-            className="mb-5 text-lg font-bold italic tracking-tight"
-          >
-            {profile.name}
-          </h1>
           <div className="space-y-4 text-[15px] leading-relaxed text-foreground/85">
             {profile.intro.map((paragraph, i) => (
               <p key={i}>
@@ -185,40 +258,15 @@ export default function Home() {
         <hr className="my-10 border-border" />
 
         <div className="space-y-14">
-          {experiences.length > 0 && (
-            <Section id="experience" title="Experience">
-              <ul className="space-y-1">
-                {experiences.map((item) => (
-                  <ExpandableRow
-                    key={`${item.organization}-${item.role}-${item.period}`}
-                    header={
-                      <RowHeader
-                        logo={<Logo src={item.logo} name={item.organization} />}
-                        title={item.organization}
-                        subtitle={[item.role, item.location]
-                          .filter(Boolean)
-                          .join(" · ")}
-                        aside={item.period}
-                      />
-                    }
-                  >
-                    <p className="mb-2 text-sm text-muted-foreground sm:hidden">
-                      {item.period}
-                    </p>
-                    {item.highlights.length > 0 && (
-                      <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-foreground/85 marker:text-muted-foreground/50">
-                        {item.highlights.map((line, i) => (
-                          <li key={i}>
-                            <RichText text={line} />
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    <Tags tags={item.tags} />
-                    <VisitLink href={item.url} />
-                  </ExpandableRow>
-                ))}
-              </ul>
+          {professionalExperiences.length > 0 && (
+            <Section id="professional-experience" title="Professional Experience">
+              <ExperienceList items={professionalExperiences} />
+            </Section>
+          )}
+
+          {researchExperiences.length > 0 && (
+            <Section id="research-experience" title="Research Experience">
+              <ExperienceList items={researchExperiences} />
             </Section>
           )}
 
@@ -228,22 +276,33 @@ export default function Home() {
                 {projects.map((project) => (
                   <ExpandableRow
                     key={project.name}
+                    preview={<Tags tags={project.tags} />}
                     header={
                       <RowHeader
-                        logo={<Logo src={project.logo} name={project.name} />}
+                        logo={<Logo src={project.logo} name={project.name} emoji={project.emoji} />}
                         title={project.name}
-                        subtitle={project.location}
-                        aside={project.year}
+                        subtitle={project.location ?? ""}
+                        aside={project.year ?? ""}
                       />
                     }
                   >
                     <p className="mb-2 text-sm text-muted-foreground sm:hidden">
                       {project.year}
                     </p>
-                    <p className="text-sm leading-relaxed text-foreground/85">
-                      <RichText text={project.description} />
-                    </p>
-                    <Tags tags={project.tags} />
+                    {project.description && (
+                      <p className="text-sm leading-relaxed text-foreground/85">
+                        <RichText text={project.description} />
+                      </p>
+                    )}
+                    {!!project.highlights?.length && (
+                      <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-foreground/85">
+                        {project.highlights.map((highlight, index) => (
+                          <li key={index}>
+                            <RichText text={highlight} />
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                     <VisitLink href={project.url} />
                   </ExpandableRow>
                 ))}
