@@ -13,9 +13,38 @@ Then open [http://localhost:4617](http://localhost:4617).
 
 Other scripts:
 
-- `npm run build` – production build
-- `npm run start` – serve the production build on port 4617
+- `npm run build` – export the production site to `out/`
 - `npm run lint` – lint with ESLint
+
+Preview the exported site with `python3 -m http.server 4618 --directory out`, then open http://localhost:4618. The static export does not use `next start`.
+
+## Publish to GitHub Pages
+
+The site is configured for **https://richard-hanxu.github.io/**, served from the repository **richard-hanxu/richard-hanxu.github.io**. There is no `/folio` base path and no custom domain or DNS setup is required.
+
+1. Create `richard-hanxu.github.io` under your `richard-hanxu` GitHub account if it does not exist. Choose public visibility for GitHub Free. For a new repository, leave it empty (do not initialize a README, license, or gitignore).
+2. In that repository, open **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**.
+3. Check `git remote -v`. The destination remote should point to `https://github.com/richard-hanxu/richard-hanxu.github.io.git`. To replace an existing `origin`, run:
+
+   ```bash
+   git remote set-url origin https://github.com/richard-hanxu/richard-hanxu.github.io.git
+   ```
+
+4. Commit the deployment configuration and push `main`:
+
+   ```bash
+   git add next.config.ts package.json README.md .github/workflows/deploy-pages.yml public/.nojekyll
+   git commit -m "Configure GitHub Pages deployment"
+   git push -u origin main
+   ```
+
+   If the remote already has commits, fetch and reconcile its history before pushing; do not force-push over an existing site.
+
+5. Watch **Actions → Deploy GitHub Pages**. When deployment completes, open https://richard-hanxu.github.io/.
+
+Every subsequent push to `main` builds and deploys the site automatically. The workflow installs the locked dependencies, lints, exports the site, and publishes `out/`. Images are served directly because GitHub Pages cannot run the Next.js image optimization server. Keep `out/` untracked.
+
+Reference: [GitHub Pages setup](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site) and [custom deployment workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
 ## Editing the content
 

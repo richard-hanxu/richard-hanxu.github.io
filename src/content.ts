@@ -111,12 +111,12 @@ export const profile = {
     },
     {
       label: "LinkedIn",
-      href: "https://www.linkedin.com/in/your-username",
+      href: "https://www.linkedin.com/in/richard-hanxu-761641174/",
       icon: "linkedin",
     },
     {
       label: "Email",
-      href: "mailto:you@example.com",
+      href: "mailto:richardhanxu@gmail.com",
       icon: "mail",
     },
     {
