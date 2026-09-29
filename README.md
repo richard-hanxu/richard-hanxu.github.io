@@ -13,10 +13,12 @@ Then open [http://localhost:4617](http://localhost:4617).
 
 Other scripts:
 
-- `npm run build` – export the production site to `out/`
+- `npm run build` – export the production site to `out/` using Webpack
 - `npm run lint` – lint with ESLint
 
 Preview the exported site with `python3 -m http.server 4618 --directory out`, then open http://localhost:4618. The static export does not use `next start`.
+
+The app uses Next.js 16.3.5 with the App Router (`src/app`). The production build uses Next.js's supported `--webpack` option because Turbopack's CSS build subprocess cannot bind a port in the local build environment. This does not change the site's features or deployment URL.
 
 ## Publish to GitHub Pages
 
@@ -33,7 +35,7 @@ The site is configured for **https://richard-hanxu.github.io/**, served from the
 4. Commit the deployment configuration and push `main`:
 
    ```bash
-   git add next.config.ts package.json README.md .github/workflows/deploy-pages.yml public/.nojekyll
+   git add next.config.ts package.json README.md .github/workflows public/.nojekyll
    git commit -m "Configure GitHub Pages deployment"
    git push -u origin main
    ```
@@ -43,6 +45,8 @@ The site is configured for **https://richard-hanxu.github.io/**, served from the
 5. Watch **Actions → Deploy GitHub Pages**. When deployment completes, open https://richard-hanxu.github.io/.
 
 Every subsequent push to `main` builds and deploys the site automatically. The workflow installs the locked dependencies, lints, exports the site, and publishes `out/`. Images are served directly because GitHub Pages cannot run the Next.js image optimization server. Keep `out/` untracked.
+
+The workflow is `.github/workflows/deploy.yml`. It generates `out/index.html`; no root `index.html` needs to be committed. Both `.next/` and `out/` are ignored by Git. CSS, JavaScript, and bundled fonts are exported under `out/_next/`, and public images are copied to `out/images/` with root-relative URLs. The app has no API routes, Server Actions, middleware, runtime database/authentication, or request-time rendering; theme switching, expandable rows, and animations run in the browser.
 
 Reference: [GitHub Pages setup](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site) and [custom deployment workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
