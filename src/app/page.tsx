@@ -198,7 +198,7 @@ function ProfileImage() {
       width={200}
       height={200}
       priority
-      className="size-50 rounded-full border border-border object-cover"
+      className="size-28 shrink-0 rounded-full border border-border object-cover md:size-50"
     />
   );
 }
@@ -233,11 +233,11 @@ export default function Home() {
           <div className="mb-6 flex items-center gap-4">
             <ProfileImage />
             <div className="flex min-w-0 flex-1 justify-center">
-              <div className="relative inline-block">
+              <div className="relative inline-block w-full min-w-0 md:w-auto">
                 <h1 id="intro-heading" className="text-4xl font-bold tracking-tight">
                   {profile.name}
                 </h1>
-                <div className="absolute top-full left-0 w-max">
+                <div className="w-full md:absolute md:top-full md:left-0 md:w-max">
                   <Typewriter />
                 </div>
               </div>

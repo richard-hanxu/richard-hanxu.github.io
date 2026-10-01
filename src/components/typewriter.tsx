@@ -43,10 +43,18 @@ export function Typewriter() {
   }, [characterCount, deleting, title]);
 
   return (
-    <p className="min-h-8 text-left text-2xl font-medium text-muted-foreground" aria-live="off">
-      {title.slice(0, characterCount)}
-      <span aria-hidden className="ml-0.5 inline-block animate-pulse text-foreground">
-        |
+    <p className="grid min-h-8 text-left text-2xl font-medium text-muted-foreground [overflow-wrap:anywhere] md:block md:[overflow-wrap:normal]" aria-live="off">
+      {/* Reserve the tallest wrapped title on mobile throughout the animation. */}
+      {TITLES.map((text) => (
+        <span key={text} aria-hidden className="invisible col-start-1 row-start-1 min-w-0 md:hidden">
+          {text}<span className="ml-0.5 inline-block">|</span>
+        </span>
+      ))}
+      <span className="col-start-1 row-start-1 min-w-0">
+        {title.slice(0, characterCount)}
+        <span aria-hidden className="ml-0.5 inline-block animate-pulse text-foreground">
+          |
+        </span>
       </span>
     </p>
   );

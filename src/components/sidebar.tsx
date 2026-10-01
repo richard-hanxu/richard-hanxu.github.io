@@ -1,5 +1,6 @@
 import { SocialIcon } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { MobileNav } from "@/components/mobile-nav";
 import { profile, type Link } from "@/content";
 
 export type NavItem = { href: string; label: string };
@@ -70,20 +71,7 @@ export function Sidebar({ nav }: { nav: NavItem[] }) {
             <ThemeToggle />
           </div>
         </div>
-        <nav
-          aria-label="Sections"
-          className="mt-2 flex gap-4 overflow-x-auto text-sm text-muted-foreground"
-        >
-          {nav.slice(1).map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="shrink-0 transition-colors hover:text-foreground"
-            >
-              {item.label}
-            </a>
-          ))}
-        </nav>
+        <MobileNav nav={nav} />
       </header>
     </>
   );

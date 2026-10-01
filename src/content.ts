@@ -152,8 +152,8 @@ export const experiences: Experience[] = [
   },
   {
     category: "professional",
-    organization: "aUToronto",
-    role: "Mapping Team Lead",
+    organization: "aUToronto - University of Toronto AutoDrive Team",
+    role: "Mapping Software Engineer Lead",
     location: "Toronto, Canada",
     period: "Sep 2023 – Jun 2025",
     logo: "/images/logos/autoronto.jpg",
