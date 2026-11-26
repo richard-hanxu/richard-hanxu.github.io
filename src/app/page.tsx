@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
+import { ConstellationBackdrop, ConstellationTile } from "@/components/constellation";
 import { ExpandableRow } from "@/components/expandable-row";
 import { RichText } from "@/components/rich-text";
 import { Sidebar, type NavItem } from "@/components/sidebar";
@@ -96,7 +97,7 @@ function initials(name: string) {
     .join("");
 }
 
-function Logo({ src, name, emoji }: { src?: string; name: string; emoji?: string }) {
+function Logo({ src, name }: { src?: string; name: string }) {
   const base =
     "size-16 shrink-0 rounded-lg border border-border/60 bg-white shadow-sm dark:shadow-none";
   if (src) {
@@ -115,7 +116,7 @@ function Logo({ src, name, emoji }: { src?: string; name: string; emoji?: string
       aria-hidden
       className={`${base} flex items-center justify-center text-sm font-semibold text-neutral-500`}
     >
-      {emoji ? <span className="text-3xl">{emoji}</span> : initials(name)}
+      {initials(name)}
     </div>
   );
 }
@@ -273,13 +274,24 @@ export default function Home() {
           {projects.length > 0 && (
             <Section id="projects" title="Projects">
               <ul className="space-y-1">
-                {projects.map((project) => (
+                {projects.map((project, index) => (
                   <ExpandableRow
                     key={project.name}
                     preview={<Tags tags={project.tags} />}
+                    backdrop={
+                      project.constellation && (
+                        <ConstellationBackdrop src={project.constellation} />
+                      )
+                    }
                     header={
                       <RowHeader
-                        logo={<Logo src={project.logo} name={project.name} emoji={project.emoji} />}
+                        logo={
+                          project.constellation && !project.logo ? (
+                            <ConstellationTile src={project.constellation} index={index} />
+                          ) : (
+                            <Logo src={project.logo} name={project.name} />
+                          )
+                        }
                         title={project.name}
                         subtitle={project.location ?? ""}
                         aside={project.year ?? ""}

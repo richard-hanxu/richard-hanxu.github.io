@@ -64,8 +64,14 @@ export type Project = {
   url?: string;
   /** Optional. Same rules as experience logos. */
   logo?: string;
-  /** Optional emoji shown in place of initials when no logo is supplied. */
-  emoji?: string;
+  /**
+   * Optional. Path to a line-art clip-art image inside public/, e.g.
+   * "/images/constellations/robot_arm.png". Every stroke is traced into a
+   * constellation drawn behind the details on hover. The icon tile shows the
+   * image in gray by day and a pulsing star by night. Outline-style icons
+   * (dark or colored strokes on a white or transparent background) work best.
+   */
+  constellation?: string;
   /** Revealed on click. Supports links. */
   description?: string;
   /** Optional bullet points revealed on click. Each string supports links. */
@@ -226,7 +232,7 @@ export const experiences: Experience[] = [
 export const projects: Project[] = [
   {
     name: "Laundry Folding Robot",
-    emoji: "🤖",
+    constellation: "/images/constellations/robot_arm.png",
     // location: "Undergraduate Thesis",
     // year: "2026",
     url: "https://docs.google.com/document/d/1MnCte1tErtbVneek30vyz5Sf7y7tUAlXavQ9e0AnskU/edit?usp=sharing",
@@ -242,7 +248,7 @@ export const projects: Project[] = [
   },
   {
     name: "Solar Power Forecasting Model",
-    emoji: "☀️",
+    constellation: "/images/constellations/line_graph.png",
     // location: "Undergraduate Thesis",
     // year: "2026",
     url: "https://github.com/richard-hanxu/climatehack2023-2024",
@@ -258,7 +264,7 @@ export const projects: Project[] = [
   },
   {
     name: "Party Icebreaker App",
-    emoji: "🥳",
+    constellation: "/images/constellations/party_hat.png",
     // location: "Undergraduate Thesis",
     // year: "2026",
     url: "https://github.com/richard-hanxu/OOC_BBQ_App",
@@ -278,7 +284,7 @@ export const interests: Interest[] = [
   {
     name: "Fencing",
     description:
-      "Fenced Epee for 7 years until university, now rekindling my passion at CMU's Fencing Club.",
+      "Fenced Epee for 7 years until university, continuing to fence at CMU's Fencing Club.",
   },
   {
     name: "Sports Analytics",
@@ -287,6 +293,6 @@ export const interests: Interest[] = [
   {
     name: "Roguelike Video Games",
     description:
-      "I have over 200 hours on both Balatro (Completionist++) and Slay The Spire 2 (A10 on 4 characters).",
+      "I have over 200 hours on both Balatro (Completionist++) and Slay The Spire 2 (A10 on all characters).",
   },
 ];
